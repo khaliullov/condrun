@@ -5,13 +5,17 @@ BINARY_NAME := condrun
 packages = $$(go list ./... | egrep -v '/vendor/')
 files = $$(find . -name '*.go' | egrep -v '/vendor/')
 
-.PHONY: all help run vet lint build
+.PHONY: all help run vet lint build install
 
-all: help
+all: build
 
 help:           ## Show this help
 	@echo "Usage:"
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
+
+install:        ## Install binary
+install: $(BINARY_NAME)
+	cp $(BINARY_NAME) /usr/bin/
 
 build:          ## Build the binary
 build: vendor lint vet
@@ -31,6 +35,8 @@ lint: vendor $(GOLINT)
 
 %:
 	@true
+
+$(BINARY_NAME): build
 
 $(GODEP):
 	cd $(GOPATH) && go get -u github.com/golang/dep/cmd/dep
